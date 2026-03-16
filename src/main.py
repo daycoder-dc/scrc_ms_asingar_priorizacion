@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from .config.settings import Settings
+from fastapi import FastAPI, Response, status
+
 from .app.controllers import asignacion_controller
+from .config.settings import Settings
 
 settings = Settings()
 
@@ -11,7 +12,7 @@ app = FastAPI(
 )
 
 app.add_middleware(
-    GZipMiddleware, 
+    GZipMiddleware,
     compresslevel=5
 )
 
@@ -19,7 +20,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "PUT", "POST", "PATCH", "DELETE"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"]
 )
 
