@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.scrc_ms_asignar_priorizacion.rule=Host(`APP_TRAEFIK_HOST`)"
+      - "traefik.http.routers.scrc_ms_asignar_priorizacion.rule=Host(`${APP_TRAEFIK_HOST}`)"
       - "traefik.http.routers.scrc_ms_asignar_priorizacion.entrypoints=websecure"
       - "traefik.http.routers.scrc_ms_asignar_priorizacion.tls.certresolver=letsencrypt"
       - "traefik.http.services.scrc_ms_asignar_priorizacion.loadbalancer.server.port=8000"
