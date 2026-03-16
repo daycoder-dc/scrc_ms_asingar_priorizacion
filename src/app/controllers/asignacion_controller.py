@@ -14,6 +14,10 @@ router = APIRouter(
 async def root():
     return Response(status_code=status.HTTP_200_OK)
 
-@router.post("/")
+@router.post("/pmu/registrar")
 async def registra_pmu(model: Annotated[dict, Depends(asignacion_model.registra_pmu)]):
+    return model
+
+@router.get("/pmu/verificar")
+async def verificar_pmu(model: Annotated[dict, Depends(asignacion_model.verificar_pmu)]):
     return model

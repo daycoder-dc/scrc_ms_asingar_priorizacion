@@ -13,12 +13,12 @@ from io import BytesIO
 
 import polars as pl
 
-def actualizar_maestro(session:Session) -> Response:
+def actualizar_maestro(df_pmu, session:Session) -> Response:
     stmt = text("""
         SELECT md.id, md.nic, md.priorizacion
         FROM maestro_db md
         WHERE md.eliminado = :eliminado
-        -- AND md.fecha_registro::date = current_date;
+        AND md.fecha_registro::date = current_date;
     """)
 
     db_master = session.execute(stmt, [{"eliminado": False}]).mappings().all()
@@ -142,5 +142,32 @@ async def registra_pmu(file: UploadFile, session: Annotated[Session, Depends(dat
 
     # step 3: Procesar Maestro para el cruze con el PMU
 
-    return actualizar_maestro(session)
+    return actualizar_maestro(df_pmu, session)
 
+async def verificar_pmu(session: Annotated[Session, Depends(database.get_session)]):
+    stmt = text("""
+        SELECT ppc.id, ppc.prioridad, ppc.cuenta
+        FROM pmu_priorizacion_cliente ppc
+        WHERE ppc.eliminado = :eliminado
+        AND ppc.fecha_registro::date = current_date;
+    """)
+
+    db_pmu = session.execute(stmt, [{"eliminado": False}]).mappings().all()
+
+    logger.info("PMU consultado ✔️")
+
+    if len(db_pmu) > 0:
+        logger.info("PMU listo para cruzar ✔️")
+
+        df_pmu = pl.DataFrame(db_pmu)
+
+        return actualizar_maestro(df_pmu, session)
+
+    logger.info("PMU pendiente ✖️")
+
+    return JSONResponse(
+        content=jsonable_encoder(
+            {"status": "pendiente"}
+        ),
+        status_code=status.HTTP_200_OK
+    )
