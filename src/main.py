@@ -1,13 +1,12 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi import FastAPI, Response, status
-
 from .app.controllers import asignacion_controller
-from .config.settings import Settings
-
-settings = Settings()
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from fastapi import FastAPI, status
 
 app = FastAPI(
+    title="scrc asignaciones",
     root_path="/api/v1"
 )
 
@@ -28,4 +27,12 @@ app.include_router(asignacion_controller.router)
 
 @app.get("/")
 async def root():
-    return Response(status_code=status.HTTP_200_OK)
+    response = {
+        "service": "scrc_ms_asignar_priorizacion",
+        "status": "running"
+    }
+
+    return JSONResponse(
+        content=jsonable_encoder(response),
+        status_code=status.HTTP_200_OK
+    )
